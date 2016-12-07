@@ -1,0 +1,12 @@
+(load "add-streams.scm")
+(load "cons-stream.scm")
+(load "stream-cdr.scm")
+
+(define (partial-sums stream)
+  (cons-stream (car stream)
+               (add-streams (partial-sums stream)
+                            (stream-cdr stream))))
+(define (partial-sums stream)
+  (cons-stream (car stream)
+               (add-streams (partial-sums stream)
+                            (stream-cdr stream))))
