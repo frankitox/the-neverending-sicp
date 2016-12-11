@@ -1,6 +1,10 @@
-(define (integral integrand initial-value dt)
+(load "add-streams.scm")
+(load "scale-stream.scm")
+
+(define (integral delayed-integrand initial-value dt)
   (define int
     (cons-stream initial-value
-                 (add-streams (scale-stream integrand dt)
-                              int)))
+                 (let ((integrand (force delayed-integrand)))
+                   (add-streams (scale-stream integrand dt)
+                                int))))
   int)
