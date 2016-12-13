@@ -1,0 +1,6 @@
+(define (rand-update x)
+  (let ((a (expt 2 32))
+        (c 1103515245)
+        (m 12345))
+    (modulo (+ (* a x) c) m)))
+(define random-init 137)
