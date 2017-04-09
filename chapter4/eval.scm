@@ -4,6 +4,7 @@
         ((quoted? exp) (text-of-quotation exp))
         ((assignment? exp) (eval-assignment exp env))
         ((definition? exp) (eval-definition exp env))
+        ((let? exp) (eval (let->application exp) env))
         ((and? exp) (eval-and exp env))
         ((or? exp) (eval-or exp env))
         ((if? exp) (eval-if exp env))
@@ -209,7 +210,7 @@
             (error "else clause isn't last"))
           (make-if (cond-predicate first)
                    (if (cond-arrow-clause? first)
-                       (list (cond-actions first)
+                       (cons (cond-actions first)
                              (cond-predicate first))
                        (sequence->exp
                          (cond-actions first)))
@@ -217,3 +218,16 @@
 
 (define (cond->if exp)
   (expand-clauses (cond-clauses exp)))
+
+(define (let? exp) (tagged-list? exp 'let))
+
+(define (let-bindings exp) (cadr exp))
+
+(define (let-body exp) (cddr exp))
+
+(define (let->application exp)
+  (let ((bindings (let-bindings exp)))
+    (cons (make-lambda
+            (map car bindings)
+            (let-body exp))
+          (map cadr bindings))))
