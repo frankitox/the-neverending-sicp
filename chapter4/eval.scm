@@ -4,6 +4,8 @@
         ((quoted? exp) (text-of-quotation exp))
         ((assignment? exp) (eval-assignment exp env))
         ((definition? exp) (eval-definition exp env))
+        ((and? exp) (eval-and exp env))
+        ((or? exp) (eval-or exp env))
         ((if? exp) (eval-if exp env))
         ((lambda? exp)
          (make-procedure (lambda-parameters exp)
@@ -121,6 +123,32 @@
       (caddr exp)
       (make-lambda (cdadr exp)
                    (caddr exp))))
+
+(define (and? exp) (tagged-list exp 'and))
+
+(define (aux-eval-and exp env)
+  (let ((res (eval (first exp) env)))
+    (cond ((eq? res #f) 'false)
+          ((null? (cdr exp)) res)
+          (else (eval-and (cdr exp) env)))))
+
+(define (eval-and exp env)
+  (if (null? (operands exp))
+      'true
+      (aux-eval-and (operands exp) env)))
+
+(define (or? exp) (tagged-list exp 'or))
+
+(define (aux-eval-or exp env)
+  (if (null? exp)
+      'false
+      (let ((res (eval (first exp) env)))
+        (if (eq? res #f)
+            (aux-eval-or (cdr exp) env)
+            res))))
+
+(define (eval-or exp env)
+  (aux-eval-or (operands exp) env))
 
 (define (if? exp) (tagged-list exp 'if))
 
