@@ -187,7 +187,13 @@
 
 (define (cond-predicate clause) (car clause))
 
-(define (cond-actions clause) (cdr clause))
+(define (cond-arrow-clause? clause)
+  (eq? '=> (cadr clause)))
+
+(define (cond-actions clause)
+  (if (eq? (cadr clause) '=>)
+    (cddr clause)
+    (cdr clause)))
 
 (define (cond-else-clause? clause)
   (eq? (cond-predicate clause) 'else))
@@ -202,8 +208,11 @@
             (sequence->exp (cond-actions first))
             (error "else clause isn't last"))
           (make-if (cond-predicate first)
-                   (sequence->exp
-                     (cond-actions first))
+                   (if (cond-arrow-clause? first)
+                       (list (cond-actions first)
+                             (cond-predicate first))
+                       (sequence->exp
+                         (cond-actions first)))
                    (expand-clauses rest))))))
 
 (define (cond->if exp)
