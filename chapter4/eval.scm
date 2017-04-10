@@ -4,6 +4,7 @@
         ((quoted? exp) (text-of-quotation exp))
         ((assignment? exp) (eval-assignment exp env))
         ((definition? exp) (eval-definition exp env))
+        ((let*? exp) (eval (let*->nested-lets exp) env))
         ((let? exp) (eval (let->application exp) env))
         ((and? exp) (eval-and exp env))
         ((or? exp) (eval-or exp env))
@@ -231,3 +232,25 @@
             (map car bindings)
             (let-body exp))
           (map cadr bindings))))
+
+(define (make-let bindings body)
+  (cons 'let (cons bindings body)))
+
+(define (let*? exp) (tagged-list? exp 'let*))
+
+(define (let*-bindings exp) (cadr exp))
+
+(define (let*-first-binding exp)
+  (car (let*-bindings exp)))
+
+(define (let*-drop-binding exp)
+  (cons 'let
+        (cons (cdr (cadr exp))
+              (cddr exp))))
+
+(define (let*->nested-lets exp)
+  (if (null? (let*-bindings exp))
+      (let-body exp)
+      (make-let (list (let*-first-binding exp))
+                (let*->nested-lets
+                  (let*-drop-binding exp)))))
