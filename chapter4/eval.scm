@@ -6,6 +6,8 @@
         ((definition? exp) (eval-definition exp env))
         ((let*? exp) (eval (let*->nested-lets exp) env))
         ((let? exp) (eval (let->application exp) env))
+        ((while? exp) (eval-while exp env))
+        ((do? exp) (eval-do exp env))
         ((and? exp) (eval-and exp env))
         ((or? exp) (eval-or exp env))
         ((if? exp) (eval-if exp env))
@@ -254,3 +256,26 @@
       (make-let (list (let*-first-binding exp))
                 (let*->nested-lets
                   (let*-drop-binding exp)))))
+
+(define (while-predicate exp) (cadr exp))
+
+(define (while-body exp) (cddr exp))
+
+(define (while? exp) (tagged-list? exp 'while))
+
+(define (eval-while exp env)
+  (if (eval (while-predicate exp) env)
+      (eval-while exp env)
+      ()))
+
+(define (do? exp) (tagged-list? exp 'do))
+
+(define do-body cdr)
+
+(define (eval-do exp env)
+  (let* eval-do-
+    ((body (do-body exp))
+     (res (eval (car body) env)))
+    (if (and res (null? (cdr body)))
+      res
+      (eval-do (cdr body) env))))
