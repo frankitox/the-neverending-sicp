@@ -273,9 +273,88 @@
 (define do-body cdr)
 
 (define (eval-do exp env)
-  (let* eval-do-
-    ((body (do-body exp))
-     (res (eval (car body) env)))
+  (define (eval-do-inner body env)
     (if (and res (null? (cdr body)))
       res
-      (eval-do (cdr body) env))))
+      (eval-do-inner (cdr body) env)))
+  (eval-do-inner (do-body exp)
+                 (eval (car body) env)))
+
+(define (true? x) (not (eq? x false)))
+
+(define (false? x) (eq? x false))
+
+; (define (apply-primitive-procedure proc args)
+;   ())
+
+; (define (primitive-procedure? proc)
+;   ())
+
+(define (make-procedure parameters body env)
+  (list 'procedure parameters body env))
+
+(define (compound-procedure? p)
+  (tagged-list? p 'procedure))
+
+(define procedure-parameters cadr)
+(define procedure-body caddr)
+(define procedure-environment cadddr)
+
+; frames
+(define first-frame car)
+(define make-frame cons)
+(define frame-variables car)
+(define frame-values cdr)
+(define (add-binding-to-frame! var val frame)
+  (set-car! frame (cons var (frame-variables frame)))
+  (set-cdr! frame (cons val (frame-values frame))))
+
+; enviroment
+(define enclosing-environment cdr)
+(define the-empty-environment ())
+(define (extend-environment vars vals base-env)
+  (if (eq? (count vars) (count vals))
+    (cons (make-frame vars vals) base-env)
+    (if (< (count vars) (count vals))
+      (error "More variables than values" vars vals)
+      (error "More values than variables" vals vars))))
+(define (lookup-variable-value var env)
+  (define (scan vars vals)
+    (if (null? vars)
+      (lookup-variable-value
+        var (enclosing-environment env))
+      (if (eq? (car vars) var)
+        (car vals)
+        (scan (cdr vars) (cdr vals)))))
+  (if (eq? the-empty-environment env)
+    (error "Variable" var "not found.")
+    (scan (frame-variables (first-frame env))
+          (frame-values (first-frame env)))))
+(define (set-variable-value! var val env)
+  (define (scan vars vals)
+    (if (null? vars)
+      (set-variable-value!
+        var val (enclosing-environment env))
+      (if (eq? var (car vars))
+        (set-car! vals val)
+        (scan (cdr vars) (cdr vals)))))
+  (if (eq? the-empty-environment env)
+    (error "Variable" var "not found.")
+    (scan (frame-variables (first-frame env))
+          (frame-values (first-frame env)))))
+(define (define-variable! var val env)
+  (define (define-variable-inner! frame vars vals)
+    (if (null? vals)
+      (add-binding-to-frame! var val frame)
+      (if (eq? var (car vars))
+        (set-car! vals val)
+        (define-variable-inner! frame
+                                (cdr vars)
+                                (cdr vals))))
+  (if (eq? the-empty-environment env)
+    (error "The environment is empty")
+    (let ((frame (first-frame env)))
+      (define-variable-inner!
+        frame
+        (frame-variables frame)
+        (frame-values frame)))))
