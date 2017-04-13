@@ -1,3 +1,17 @@
+(define apply-in-underlying-scheme apply)
+
+(define (apply procedure arguments)
+  (cond ((primitive-procedure? procedure)
+         (apply-primitive-procedure procedure arguments))
+        ((compound-procedure? procedure)
+         (eval-sequence
+           (procedure-body procedure)
+           arguments
+           (procedure-environment procedure)))
+        (else
+          (error
+            "Unknown procedure type -- APPLY" procedure))))
+
 (define (eval exp env)
   (cond ((self-evaluating? exp) exp)
         ((variable? exp) (lookup-variable-value exp env))
@@ -24,18 +38,6 @@
         (else
           (error "Unknown expression type -- EVAL" exp))))
 
-(define (apply procedure arguments)
-  (cond ((primitive-procedure? procedure)
-         (apply-primitive-procedure procedure arguments))
-        ((compound-procedure? procedure)
-         (eval-sequence
-           (procedure-body procedure)
-           arguments
-           (procedure-environment procedure)))
-        (else
-          (error
-            "Unknown procedure type -- APPLY" procedure))))
-
 (define (application? exp) (pair? exp))
 
 (define (operator exp) (car exp))
@@ -49,7 +51,7 @@
 (define (rest-operands exp) (cdr exp))
 
 (define (list-of-values exps env)
-  (if (no-operands? exps)
+  (if (null? exps)
       '()
       (cons (eval (first-operand exps) env)
             (list-of-values (rest-operands exps) env))))
@@ -128,7 +130,7 @@
       (make-lambda (cdadr exp)
                    (caddr exp))))
 
-(define (and? exp) (tagged-list exp 'and))
+(define (and? exp) (tagged-list? exp 'and))
 
 (define (aux-eval-and exp env)
   (let ((res (eval (first exp) env)))
@@ -141,7 +143,7 @@
       'true
       (aux-eval-and (operands exp) env)))
 
-(define (or? exp) (tagged-list exp 'or))
+(define (or? exp) (tagged-list? exp 'or))
 
 (define (aux-eval-or exp env)
   (if (null? exp)
@@ -154,7 +156,7 @@
 (define (eval-or exp env)
   (aux-eval-or (operands exp) env))
 
-(define (if? exp) (tagged-list exp 'if))
+(define (if? exp) (tagged-list? exp 'if))
 
 (define (if-predicate exp) (cadr exp))
 
@@ -284,12 +286,6 @@
 
 (define (false? x) (eq? x false))
 
-; (define (apply-primitive-procedure proc args)
-;   ())
-
-; (define (primitive-procedure? proc)
-;   ())
-
 (define (make-procedure parameters body env)
   (list 'procedure parameters body env))
 
@@ -355,3 +351,49 @@
       (scan
         (frame-variables frame)
         (frame-values frame)))))
+
+(define (primitive-procedure? exp)
+  (tagged-list? exp 'primitive))
+
+(define (primitive-implementation exp)
+  (cadr exp))
+
+(define primitive-procedures
+  (list (list 'car car)
+        (list 'cdr cdr)
+        (list 'cons cons)
+        (list 'null? null?)))
+
+(define (primitive-procedure-names)
+  (map car primitive-procedures))
+
+(define (primitive-procedure-values)
+  (map (lambda (proc)
+         (list 'primitive (cadr proc)))
+       primitive-procedures))
+
+(define (setup-environment)
+  (let ((initial-env
+         (extend-environment
+           (primitive-procedure-names)
+           (primitive-procedure-values)
+           the-empty-environment)))
+    (define-variable! 'false false initial-env)
+    (define-variable! 'true true initial-env)
+    initial-env))
+
+(define the-global-environment
+  (setup-environment))
+
+(define (apply-primitive-procedure proc args)
+  (apply-in-underlying-scheme
+    (primitive-implementation proc)
+    args))
+
+(define (print-eval-prompt)
+  (newline)
+  (display ">> ")
+  (let* ((exp (read))
+         (res (eval exp the-global-environment)))
+    (display res)
+    (print-eval-prompt)))
