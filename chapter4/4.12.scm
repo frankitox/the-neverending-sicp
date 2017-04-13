@@ -15,7 +15,7 @@
       (error "More variables than values" vars vals)
       (error "More values than variables" vals vars))))
 
-; Exercise 4.12
+; Exercise
 (define (scan-frame var env found not-found)
   (define (scan vars vals)
     (cond ((null? vars) (not-found))
