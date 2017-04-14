@@ -6,8 +6,10 @@
         ((compound-procedure? procedure)
          (eval-sequence
            (procedure-body procedure)
-           arguments
-           (procedure-environment procedure)))
+           (extend-environment
+             (procedure-parameters procedure)
+             arguments
+             (procedure-environment procedure))))
         (else
           (error
             "Unknown procedure type -- APPLY" procedure))))
@@ -68,15 +70,17 @@
              (eval-sequence (rest-exps exp) env))))
 
 (define (eval-assignment exp env)
-  (set-variable-value! (assignment-variable exp)
-                       (eval (assignment-value exp env))
-                       env)
+  (set-variable-value!
+    (assignment-variable exp)
+    (eval (assignment-value exp env))
+    env)
   'ok)
 
 (define (eval-definition exp env)
-  (define-variable! (definition-variable exp)
-                    ((eval (definition-value exp env)))
-                    env)
+  (define-variable!
+    (definition-variable exp)
+    (eval (definition-value exp) env)
+    env)
   'ok)
 
 (define (self-evaluating? exp)
@@ -128,7 +132,7 @@
   (if (symbol? (cadr exp))
       (caddr exp)
       (make-lambda (cdadr exp)
-                   (caddr exp))))
+                   (cddr exp))))
 
 (define (and? exp) (tagged-list? exp 'and))
 
@@ -390,10 +394,28 @@
     (primitive-implementation proc)
     args))
 
-(define (print-eval-prompt)
-  (newline)
-  (display ">> ")
-  (let* ((exp (read))
-         (res (eval exp the-global-environment)))
-    (display res)
-    (print-eval-prompt)))
+(define input-prompt ";;; M-Eval input:")
+
+(define output-prompt ";;; M-Eval value:")
+
+(define (driver-loop)
+  (prompt-for-input input-prompt)
+  (let ((input (read)))
+    (let ((output (eval input the-global-environment)))
+      (announce-output output-prompt)
+      (user-print output)))
+  (driver-loop))
+
+(define (prompt-for-input string)
+  (newline) (newline) (display string) (newline))
+
+(define (announce-output string)
+  (newline) (display string) (newline))
+
+(define (user-print object)
+  (if (compound-procedure? object)
+    (display (list 'compound-procedure
+                   (procedure-parameters object)
+                   (procedure-body object)
+                   '<procedure-env>))
+    (display object)))
