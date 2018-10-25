@@ -49,13 +49,17 @@
        (lambda (insts labels)
          (let ((next-inst (car text)))
            (if (symbol? next-inst)
-               (receive
-                   insts
-                   (cons
-                    (make-label-entry
-                     next-inst
-                     insts)
-                    labels))
+               (if (assoc next-inst labels) ;; Ex5.8: Fix using the last label,
+                                            ;; instead signal an error.
+                   (error "Duplicated label: ASSEMBLE"
+                          label-name)
+                   (receive
+                       insts
+                       (cons
+                        (make-label-entry
+                         next-inst
+                         insts)
+                        labels)))
                (receive
                    (cons (make-instruction
                           next-inst)
