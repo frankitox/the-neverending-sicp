@@ -25,8 +25,14 @@
              operations))
         (aprocs
          (map (lambda (e)
-                (make-primitive-exp
-                 e machine labels))
+                ;; Exercise 5.9: Allow only registers and constants.
+                (if (or (register-exp? e)
+                        (label-exp? e))
+                  (make-primitive-exp
+                   e machine labels)
+                  (error "Unknown operation parameter:
+                          ASSEMBLE"
+                         e)))
               (operation-exp-operands exp))))
     (lambda () (apply op (map (lambda (p) (p))
                               aprocs)))))

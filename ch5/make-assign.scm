@@ -1,4 +1,5 @@
 (load "make-utils.scm")
+(load "make-operation-exp.scm")
 (load "make-primitive-exp.scm")
 
 ;; TODO: Link to:
