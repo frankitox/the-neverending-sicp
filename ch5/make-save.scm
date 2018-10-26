@@ -8,5 +8,7 @@
               machine
               (stack-inst-reg-name inst))))
     (lambda ()
-      (push stack (get-contents reg))
+      (push stack (list
+                   (get-name reg)
+                   (get-contents reg)))
       (advance-pc pc))))

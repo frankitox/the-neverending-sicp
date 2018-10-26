@@ -3,10 +3,19 @@
 (load "make-stack.scm")
 (load "make-new-machine.scm")
 
+(define (get-tag-name value)
+  (car value))
+
+(define (get-tag-value value)
+  (cadr value))
+
 (define (make-restore inst machine stack pc)
-  (let ((reg (get-register
-              machine
-              (stack-inst-reg-name inst))))
+  (let ((reg-name (stack-inst-reg-name inst))
+        (reg (get-register machine reg-name)))
     (lambda ()
-      (set-contents! reg (pop stack))
-      (advance-pc pc))))
+      (let ((tagged-val (pop stack)))
+        (if (eq? reg-name (get-tag-name tagged-val))
+          (begin
+            (set-contents! reg (get-tag-value tagged-val))
+            (advance-pc pc))
+          (error "Bad RESTORE: Can't pop " reg-name))))))
