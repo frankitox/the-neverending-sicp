@@ -1,3 +1,6 @@
+(load "make-utils.scm")
+(load "make-execution-procedure.scm")
+
 (define (make-instruction text)
   (cons text '()))
 
@@ -12,16 +15,6 @@
          proc)
   (set-cdr! inst proc))
 
-(define (make-label-entry label-name insts)
-  (cons label-name insts))
-
-(define (lookup-label labels label-name)
-  (let ((val (assoc label-name labels)))
-    (if val
-        (cdr val)
-        (error "Undefined label: ASSEMBLE"
-               label-name))))
-
 (define (update-insts! insts labels machine)
   (let ((pc (get-register machine 'pc))
         (flag (get-register machine 'flag))
@@ -32,7 +25,7 @@
        (set-instruction-execution-proc!
         inst
         (make-execution-procedure
-         (instruction-text inst) 
+         (instruction-text inst)
          labels
          machine
          pc
@@ -40,6 +33,9 @@
          stack
          ops)))
      insts)))
+
+(define (make-label-entry label-name insts)
+  (cons label-name insts))
 
 (define (extract-labels text receive)
   (if (null? text)
@@ -54,12 +50,12 @@
                    (error "Duplicated label: ASSEMBLE"
                           label-name)
                    (receive
-                       insts
-                       (cons
-                        (make-label-entry
-                         next-inst
-                         insts)
-                        labels)))
+                    insts
+                    (cons
+                     (make-label-entry
+                      next-inst
+                      insts)
+                     labels)))
                (receive
                    (cons (make-instruction
                           next-inst)

@@ -1,8 +1,5 @@
 (load "make-utils.scm")
-
-;; set-contents!
-;; lookup-label
-;; get-contents
+(load "make-register.scm")
 
 (define (goto-dest goto-instruction)
   (cadr goto-instruction))

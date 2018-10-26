@@ -1,6 +1,5 @@
-;; operation-exp?
-;; make-operation-exp
-;; advance-pc
+(load "make-operation-exp.scm")
+(load "make-new-machine.scm")
 
 (define (perform-action perform-instruction)
   (cdr perform-instruction))

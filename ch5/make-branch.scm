@@ -1,10 +1,6 @@
 (load "make-utils.scm")
-
-;; TODO: Link to:
-;; - lookup-label
-;; - get-contents
-;; - set-contents!
-;; - advance-pc
+(load "make-register.scm")
+(load "make-new-machine.scm")
 
 (define (branch-dest branch-instruction)
   (cadr branch-instruction))

@@ -1,8 +1,6 @@
-;; TODO: Link to:
-;; - operation-exp?
-;; - make-operation-exp
-;; - set-contents!
-;; - advance-pc
+(load "make-operation-exp.scm")
+(load "make-register.scm")
+(load "make-new-machine.scm")
 
 (define (test-condition test-instruction)
   (cdr test-instruction))

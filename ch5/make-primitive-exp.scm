@@ -1,8 +1,5 @@
 (load "make-utils.scm")
-
-; lookup-label
-; get-register
-; get-contents
+(load "make-register.scm")
 
 (define (make-primitive-exp exp machine labels)
   (cond ((constant-exp? exp)

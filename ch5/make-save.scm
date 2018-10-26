@@ -1,7 +1,7 @@
 (load "stack-inst-reg-name.scm")
-;; get-register
-;; push
-;; advance-pc
+(load "make-register.scm")
+(load "make-stack.scm")
+(load "make-new-machine.scm")
 
 (define (make-save inst machine stack pc)
   (let ((reg (get-register

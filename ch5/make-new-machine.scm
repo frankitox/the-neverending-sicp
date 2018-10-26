@@ -71,6 +71,9 @@
                            message))))
       dispatch)))
 
+(define (advance-pc pc)
+  (set-contents! pc (cdr (get-contents pc))))
+
 (define (get-register machine reg-name)
   ((machine 'get-register) reg-name))
 

@@ -1,13 +1,8 @@
 (load "make-utils.scm")
+(load "make-new-machine.scm")
 (load "make-operation-exp.scm")
 (load "make-primitive-exp.scm")
-
-;; TODO: Link to:
-;; - get-register
-;; - operation-exp?
-;; - make-operation-exp
-;; - set-contents!
-;; - advance-pc
+(load "make-register.scm")
 
 (define (assign-reg-name assign-instruction)
   (cadr assign-instruction))
