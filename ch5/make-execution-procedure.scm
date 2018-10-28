@@ -7,7 +7,7 @@
 (load "make-perform.scm")
 
 (define (make-execution-procedure
-         inst labels machine pc flag stack ops)
+         inst labels machine pc flag dict ops)
   (cond ((eq? (car inst) 'assign)
          (make-assign
           inst machine labels ops pc))
@@ -20,9 +20,9 @@
         ((eq? (car inst) 'goto)
          (make-goto inst machine labels pc))
         ((eq? (car inst) 'save)
-         (make-save inst machine stack pc))
+         (make-save inst machine dict pc))
         ((eq? (car inst) 'restore)
-         (make-restore inst machine stack pc))
+         (make-restore inst machine dict pc))
         ((eq? (car inst) 'perform)
          (make-perform
           inst machine labels ops pc))

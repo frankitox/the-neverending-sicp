@@ -18,7 +18,7 @@
 (define (update-insts! insts labels machine)
   (let ((pc (get-register machine 'pc))
         (flag (get-register machine 'flag))
-        (stack (machine 'stack))
+        (dict (machine 'dict))
         (ops (machine 'operations)))
     (for-each
      (lambda (inst)
@@ -30,7 +30,7 @@
          machine
          pc
          flag
-         stack
+         dict
          ops)))
      insts)))
 
