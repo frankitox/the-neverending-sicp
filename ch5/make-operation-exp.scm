@@ -27,7 +27,7 @@
          (map (lambda (e)
                 ;; Exercise 5.9: Allow only registers and constants.
                 (if (or (register-exp? e)
-                        (label-exp? e))
+                        (constant-exp? e))
                   (make-primitive-exp
                    e machine labels)
                   (error "Unknown operation parameter:

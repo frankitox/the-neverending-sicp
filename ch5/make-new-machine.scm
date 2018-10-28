@@ -1,5 +1,5 @@
 (load "make-register.scm")
-(load "make-dictionary.scm")
+(load "make-dict.scm")
 (load "make-stack.scm")
 
 (define (make-new-machine)
