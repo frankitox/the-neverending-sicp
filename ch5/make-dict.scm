@@ -6,18 +6,19 @@
       (if (assoc key d)
         (cadr (assoc key d))
         (error "Dictionary key not found: GET " key)))
-    (define (update register value)
-      (let ((key (get-name register)))
+    (define (update key fn)
+      (let ((val (assoc key d)))
         (set! d
               (cons
-               (del-assoc key d)
-               (list key value)))))
+               (list key (fn (if val (cadr val) '())))
+               (del-assoc key d)))))
     (define (initialize)
       (set! d '())
       'done)
     (define (dispatch message)
       (cond ((eq? message 'get) get)
             ((eq? message 'update) update)
+            ((eq? message 'all) d)
             ((eq? message 'initialize)
              (initialize))
             (else
@@ -28,5 +29,5 @@
 (define (get dict key)
   ((dict 'get) key))
 
-(define (update dict register value)
-  ((dict 'update) register value))
+(define (update dict key fn)
+  ((dict 'update) key fn))

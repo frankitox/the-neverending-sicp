@@ -8,6 +8,7 @@
 
 (define (make-execution-procedure
          inst labels machine pc flag dict ops)
+  (add-instruction! machine inst)
   (cond ((eq? (car inst) 'assign)
          (make-assign
           inst machine labels ops pc))

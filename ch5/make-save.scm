@@ -8,6 +8,7 @@
   (let ((reg (get-register
               machine
               (stack-inst-reg-name inst))))
+    (track-stack! machine reg)
     (lambda ()
       (let ((stack (get dict (get-name reg))))
         (push stack (list

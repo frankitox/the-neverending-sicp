@@ -18,6 +18,7 @@
                   (get-register
                    machine
                    (register-exp-reg dest))))
+             (add-entry-point! machine reg)
              (lambda ()
                (set-contents!
                 pc ;; isn't this like, dangerous?

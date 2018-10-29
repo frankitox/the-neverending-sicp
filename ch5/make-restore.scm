@@ -12,6 +12,7 @@
 (define (make-restore inst machine stack pc)
   (let ((reg-name (stack-inst-reg-name inst)))
     (let ((reg (get-register machine reg-name)))
+      (track-stack! machine reg)
       (lambda ()
         (let ((tagged-val (pop stack)))
           (if (eq? reg-name (get-tag-name tagged-val))
