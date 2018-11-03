@@ -11,25 +11,35 @@
   (cddr assign-instruction))
 
 (define (make-assign
-         inst machine labels operations pc)
+          inst machine labels operations pc)
   (let ((target
-         (get-register
-          machine
-          (assign-reg-name inst)))
+          (get-register
+            machine
+            (assign-reg-name inst)))
         (value-exp (assign-value-exp inst)))
     (let ((value-proc
-           (if (operation-exp? value-exp)
-               (make-operation-exp
+            (if (operation-exp? value-exp)
+              (make-operation-exp
                 value-exp
                 machine
                 labels
                 operations)
-               (make-primitive-exp
+              (make-primitive-exp
                 (car value-exp)
                 machine
                 labels))))
       (lambda ()   ; execution procedure
-                   ; for assign
-        (per-instruction machine inst)
-        (set-contents! target (value-proc))
-        (advance-pc pc)))))
+        ; for assign
+        (let ((value (value-proc)))
+          (per-instruction machine inst)
+          (if ((target 'tracing?))
+            (begin
+              (display "Updating REGISTER ")
+              (display (target 'name))
+              (display " from ")
+              (display (target 'get))
+              (display " to ")
+              (display value)
+              (newline)))
+          (set-contents! target value)
+          (advance-pc pc))))))
