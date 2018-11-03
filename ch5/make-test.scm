@@ -5,9 +5,8 @@
 (define (test-condition test-instruction)
   (cdr test-instruction))
 
-(define
-  (make-test
-   inst machine labels operations flag pc)
+(define (make-test
+         inst machine labels operations flag pc)
   (let ((condition (test-condition inst)))
     (if (operation-exp? condition)
         (let ((condition-proc

@@ -5,9 +5,8 @@
 (define (branch-dest branch-instruction)
   (cadr branch-instruction))
 
-(define
-  (make-branch
-   inst machine labels flag pc)
+(define (make-branch
+         inst machine labels flag pc)
   (let ((dest (branch-dest inst)))
     (if (label-exp? dest)
         (let ((insts
