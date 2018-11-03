@@ -98,6 +98,22 @@
                      stack-regs
                      (add stack-regs (get-name reg)))))
                 ((eq? message 'stack-regs) stack-regs)
+                ((eq? message 'statistics)
+                 (lambda ()
+                   (let ((dict-all (dict 'all)))
+                     (display "Final dictionary entries:") (newline)
+                     (display
+                       (map (lambda (stuff)
+                              (let ((stack (cadr stuff)))
+                                (list (car stuff) (stack 'all))))
+                            dict-all))
+                     (newline)
+                     (for-each
+                       (lambda (stuff)
+                         (display "Stack statistics of register ")
+                         (display (car stuff)) (display ":")
+                         ((cadr stuff) 'print-statistics) (newline))
+                       dict-all))))
                 ((eq? message 'assignations)
                  (let ((assigns (make-dict)))
                    (assigns 'initialize)
