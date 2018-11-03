@@ -11,7 +11,5 @@
     (track-stack! machine reg)
     (lambda ()
       (let ((stack (get dict (get-name reg))))
-        (push stack (list
-                      (get-name reg)
-                      (get-contents reg))))
+        (push stack (get-contents reg)))
       (advance-pc pc))))
