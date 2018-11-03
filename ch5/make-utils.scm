@@ -26,3 +26,11 @@
         (cdr val)
         (error "Undefined label: ASSEMBLE"
                label-name))))
+
+(define (per-instruction machine inst)
+  ((machine 'count-instruction))
+  (if ((machine 'tracing?))
+    (begin
+      (display "Executing instruction: ")
+      (display inst)
+      (newline))))

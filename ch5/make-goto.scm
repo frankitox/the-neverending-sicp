@@ -12,7 +12,7 @@
                    labels
                    (label-exp-label dest))))
              (lambda ()
-               ((machine 'count-instruction))
+               (per-instruction machine inst)
                (set-contents! pc insts))))
           ((register-exp? dest)
            (let ((reg
@@ -21,7 +21,7 @@
                    (register-exp-reg dest))))
              (add-entry-point! machine reg)
              (lambda ()
-               ((machine 'count-instruction))
+               (per-instruction machine inst)
                (set-contents!
                 pc ;; isn't this like, dangerous?
                 (get-contents reg)))))

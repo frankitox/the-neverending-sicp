@@ -1,4 +1,5 @@
 (load "stack-inst-reg-name.scm")
+(load "make-utils.scm")
 (load "make-register.scm")
 (load "make-stack.scm")
 (load "make-dict.scm")
@@ -18,6 +19,6 @@
         (let ((stack (get dict reg-name)))
          (let ((val (pop stack)))
            (begin
-             ((machine 'count-instruction))
+             (per-instruction machine inst)
              (set-contents! reg val)
              (advance-pc pc))))))))

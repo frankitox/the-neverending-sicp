@@ -14,6 +14,7 @@
                 labels
                 (label-exp-label dest))))
           (lambda ()
+            (per-instruction machine inst)
             (if (get-contents flag)
                 (set-contents! pc insts)
                 (advance-pc pc))))

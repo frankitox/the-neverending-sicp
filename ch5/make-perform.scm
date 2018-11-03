@@ -1,5 +1,6 @@
 (load "make-operation-exp.scm")
 (load "make-new-machine.scm")
+(load "make-utils.scm")
 
 (define (perform-action perform-instruction)
   (cdr perform-instruction))
@@ -15,7 +16,7 @@
                 labels
                 operations)))
           (lambda ()
-            ((machine 'count-instruction))
+            (per-instruction machine inst)
             (action-proc)
             (advance-pc pc)))
         (error "Bad PERFORM instruction:

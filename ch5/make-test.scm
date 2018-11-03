@@ -1,3 +1,4 @@
+(load "make-utils.scm")
 (load "make-operation-exp.scm")
 (load "make-register.scm")
 (load "make-new-machine.scm")
@@ -16,6 +17,7 @@
                 labels
                 operations)))
           (lambda ()
+            (per-instruction machine inst)
             (set-contents!
              flag (condition-proc))
             (advance-pc pc)))
