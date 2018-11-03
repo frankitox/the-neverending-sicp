@@ -10,6 +10,7 @@
               (stack-inst-reg-name inst))))
     (track-stack! machine reg)
     (lambda ()
+      ((machine 'count-instruction))
       (let ((stack (get dict (get-name reg))))
         (push stack (get-contents reg)))
       (advance-pc pc))))

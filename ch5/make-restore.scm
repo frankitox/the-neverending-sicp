@@ -18,5 +18,6 @@
         (let ((stack (get dict reg-name)))
          (let ((val (pop stack)))
            (begin
+             ((machine 'count-instruction))
              (set-contents! reg val)
              (advance-pc pc))))))))

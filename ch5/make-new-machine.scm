@@ -15,7 +15,8 @@
         (entry-points '())
         (stack-regs '())
         (assignations '())
-        (the-instruction-sequence '()))
+        (the-instruction-sequence '())
+        (instruction-counter 0))
     (let ((register-table
            (list (list 'pc pc)
                  (list 'flag flag))))
@@ -98,9 +99,17 @@
                      stack-regs
                      (add stack-regs (get-name reg)))))
                 ((eq? message 'stack-regs) stack-regs)
+                ((eq? message 'reset-instructions-counter)
+                 (lambda ()
+                   (set! instruction-counter 0)))
+                ((eq? message 'count-instruction)
+                 (lambda ()
+                   (set! instruction-counter (+ 1 instruction-counter))))
                 ((eq? message 'statistics)
                  (lambda ()
                    (let ((dict-all (dict 'all)))
+                     (display "Number of instructions executed: ")
+                     (display instruction-counter) (newline)
                      (display "Final dictionary entries:") (newline)
                      (display
                        (map (lambda (stuff)

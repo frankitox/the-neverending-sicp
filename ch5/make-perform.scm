@@ -15,6 +15,7 @@
                 labels
                 operations)))
           (lambda ()
+            ((machine 'count-instruction))
             (action-proc)
             (advance-pc pc)))
         (error "Bad PERFORM instruction:

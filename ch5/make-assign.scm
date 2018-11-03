@@ -30,5 +30,6 @@
                 labels))))
       (lambda ()   ; execution procedure
                    ; for assign
+        ((machine 'count-instruction))
         (set-contents! target (value-proc))
         (advance-pc pc)))))
