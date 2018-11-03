@@ -1,3 +1,4 @@
+(load "make-label.scm")
 (load "make-assign.scm")
 (load "make-test.scm")
 (load "make-branch.scm")
@@ -9,15 +10,18 @@
 (define (make-execution-procedure
          inst labels machine pc flag dict ops)
   (add-instruction! machine inst)
-  (cond ((eq? (car inst) 'assign)
+  (cond ((eq? (car inst) 'label)
+         (make-label
+           inst machine labels ops pc))
+        ((eq? (car inst) 'assign)
          (make-assign
-          inst machine labels ops pc))
+           inst machine labels ops pc))
         ((eq? (car inst) 'test)
          (make-test
-          inst machine labels ops flag pc))
+           inst machine labels ops flag pc))
         ((eq? (car inst) 'branch)
          (make-branch
-          inst machine labels flag pc))
+           inst machine labels flag pc))
         ((eq? (car inst) 'goto)
          (make-goto inst machine labels pc))
         ((eq? (car inst) 'save)
@@ -26,7 +30,7 @@
          (make-restore inst machine dict pc))
         ((eq? (car inst) 'perform)
          (make-perform
-          inst machine labels ops pc))
+           inst machine labels ops pc))
         (else (error "Unknown instruction
-                      type: ASSEMBLE"
-                     inst))))
+        type: ASSEMBLE"
+        inst))))

@@ -39,28 +39,30 @@
 
 (define (extract-labels text receive)
   (if (null? text)
-      (receive '() '())
-      (extract-labels
-       (cdr text)
-       (lambda (insts labels)
-         (let ((next-inst (car text)))
-           (if (symbol? next-inst)
-               (if (assoc next-inst labels) ;; Ex5.8: Fix using the last label,
-                                            ;; instead signal an error.
-                   (error "Duplicated label: ASSEMBLE"
-                          label-name)
-                   (receive
-                    insts
-                    (cons
-                     (make-label-entry
-                      next-inst
+    (receive '() '())
+    (extract-labels
+      (cdr text)
+      (lambda (insts labels)
+        (let ((next-inst (car text)))
+          (if (symbol? next-inst)
+            (if (assoc next-inst labels) ;; Ex5.8: Fix using the last label,
+              ;; instead signal an error.
+              (error "Duplicated label: ASSEMBLE"
+                     label-name)
+              (receive
+                (cons (make-instruction
+                        (list 'label next-inst))
                       insts)
-                     labels)))
-               (receive
-                   (cons (make-instruction
-                          next-inst)
-                         insts)
-                   labels)))))))
+                (cons
+                  (make-label-entry
+                    next-inst
+                    insts)
+                  labels)))
+            (receive
+              (cons (make-instruction
+                      next-inst)
+                    insts)
+              labels)))))))
 
 (define (assemble controller-text machine)
   (extract-labels controller-text
