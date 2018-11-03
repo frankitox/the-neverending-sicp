@@ -31,10 +31,7 @@
                                    (lambda (_) (make-stack))))
                                 register-table))))))
         (define (allocate-register name)
-          (if (assoc name register-table)
-              (error
-               "Multiply defined register: "
-               name)
+          (if (not (assoc name register-table))
               (set! register-table
                     (cons
                      (list name
@@ -134,6 +131,7 @@
   (set-contents! pc (cdr (get-contents pc))))
 
 (define (get-register machine reg-name)
+  ((machine 'allocate-register!) reg-name)
   ((machine 'get-register) reg-name))
 
 (define (start machine)
