@@ -17,8 +17,10 @@
       (track-stack! machine reg)
       (lambda ()
         (let ((stack (get dict reg-name)))
-         (let ((val (pop stack)))
-           (begin
-             (per-instruction machine inst)
-             (set-contents! reg val)
-             (advance-pc pc))))))))
+          (let ((val (pop stack)))
+            (begin
+              (per-instruction
+                machine inst
+                (lambda ()
+                  (set-contents! reg val)
+                  (advance-pc pc))))))))))

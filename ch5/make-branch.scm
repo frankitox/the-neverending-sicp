@@ -6,18 +6,20 @@
   (cadr branch-instruction))
 
 (define (make-branch
-         inst machine labels flag pc)
+          inst machine labels flag pc)
   (let ((dest (branch-dest inst)))
     (if (label-exp? dest)
-        (let ((insts
-               (lookup-label
+      (let ((insts
+              (lookup-label
                 labels
                 (label-exp-label dest))))
-          (lambda ()
-            (per-instruction machine inst)
-            (if (get-contents flag)
+        (lambda ()
+          (per-instruction
+            machine inst
+            (lambda ()
+              (if (get-contents flag)
                 (set-contents! pc insts)
-                (advance-pc pc))))
-        (error "Bad BRANCH instruction:
-                ASSEMBLE"
-               inst))))
+                (advance-pc pc))))))
+      (error "Bad BRANCH instruction:
+             ASSEMBLE"
+             inst))))

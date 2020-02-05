@@ -8,23 +8,25 @@
   (let ((dest (goto-dest inst)))
     (cond ((label-exp? dest)
            (let ((insts
-                  (lookup-label
-                   labels
-                   (label-exp-label dest))))
+                   (lookup-label
+                     labels
+                     (label-exp-label dest))))
              (lambda ()
-               (per-instruction machine inst)
-               (set-contents! pc insts))))
+               (per-instruction
+                 machine inst
+                 (lambda ()
+                   (set-contents! pc insts))))))
           ((register-exp? dest)
            (let ((reg
-                  (get-register
-                   machine
-                   (register-exp-reg dest))))
+                   (get-register
+                     machine
+                     (register-exp-reg dest))))
              (add-entry-point! machine reg)
              (lambda ()
-               (per-instruction machine inst)
-               (set-contents!
-                pc ;; isn't this like, dangerous?
-                (get-contents reg)))))
+               (per-instruction
+                 machine inst
+                 (lambda ()
+                   (set-contents! pc (get-contents reg)))))))
           (else (error "Bad GOTO instruction:
-                        ASSEMBLE"
+                       ASSEMBLE"
                        inst)))))

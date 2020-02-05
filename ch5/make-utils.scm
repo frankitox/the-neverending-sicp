@@ -27,10 +27,16 @@
         (error "Undefined label: ASSEMBLE"
                label-name))))
 
-(define (per-instruction machine inst)
-  ((machine 'count-instruction))
-  (if ((machine 'tracing?))
+(define (per-instruction machine inst then)
+  (if ((machine 'try-to-break!))
     (begin
-      (display "Executing instruction: ")
-      (display inst)
-      (newline))))
+      (display "STOPPED MACHINE") (newline)
+      ((machine 'pause)))
+    (begin
+      ((machine 'count-instruction))
+      (if ((machine 'tracing?))
+        (begin
+          (display "Executing instruction: ")
+          (display inst)
+          (newline)))
+      (then))))

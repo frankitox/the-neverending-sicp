@@ -7,11 +7,13 @@
 
 (define (make-save inst machine dict pc)
   (let ((reg (get-register
-              machine
-              (stack-inst-reg-name inst))))
+               machine
+               (stack-inst-reg-name inst))))
     (track-stack! machine reg)
     (lambda ()
-      (per-instruction machine inst)
-      (let ((stack (get dict (get-name reg))))
-        (push stack (get-contents reg)))
-      (advance-pc pc))))
+      (per-instruction
+        machine inst
+        (lambda ()
+          (let ((stack (get dict (get-name reg))))
+            (push stack (get-contents reg)))
+          (advance-pc pc))))))

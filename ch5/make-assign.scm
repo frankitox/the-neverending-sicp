@@ -31,15 +31,17 @@
       (lambda ()   ; execution procedure
         ; for assign
         (let ((value (value-proc)))
-          (per-instruction machine inst)
-          (if ((target 'tracing?))
-            (begin
-              (display "Updating REGISTER ")
-              (display (target 'name))
-              (display " from ")
-              (display (target 'get))
-              (display " to ")
-              (display value)
-              (newline)))
-          (set-contents! target value)
-          (advance-pc pc))))))
+          (per-instruction
+            machine inst
+            (lambda ()
+              (if ((target 'tracing?))
+                (begin
+                  (display "Updating REGISTER ")
+                  (display (target 'name))
+                  (display " from ")
+                  (display (target 'get))
+                  (display " to ")
+                  (display value)
+                  (newline)))
+              (set-contents! target value)
+              (advance-pc pc))))))))

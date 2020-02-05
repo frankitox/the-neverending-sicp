@@ -17,57 +17,91 @@
         (assignations '())
         (the-instruction-sequence '())
         (instruction-counter 0)
-        (tracing false))
+        (tracing false)
+        (breakpoints '())
+        (pause '())
+        (just-breaked false))
     (let ((register-table
-           (list (list 'pc pc)
-                 (list 'flag flag))))
+            (list (list 'pc pc)
+                  (list 'flag flag))))
       (let ((the-ops
-             (list
-              (list 'initialize-dict
-                    (lambda ()
-                      (dict 'initialize)
-                      (for-each (lambda (table-entry)
-                                  (update
-                                   dict
-                                   (car table-entry)
-                                   (lambda (_) (make-stack))))
-                                register-table))))))
+              (list
+                (list 'initialize-dict
+                      (lambda ()
+                        (dict 'initialize)
+                        (for-each (lambda (table-entry)
+                                    (update
+                                      dict
+                                      (car table-entry)
+                                      (lambda (_) (make-stack))))
+                                  register-table))))))
         (define (allocate-register name)
           (if (not (assoc name register-table))
-              (set! register-table
-                    (cons
-                     (list name
-                           (make-register name))
-                     register-table)))
+            (set! register-table
+              (cons
+                (list name
+                      (make-register name))
+                register-table)))
           'register-allocated)
         (define (lookup-register name)
           (let ((val
-                 (assoc name register-table)))
+                  (assoc name register-table)))
             (if val
-                (cadr val)
-                (error "Unknown register:"
-                       name))))
+              (cadr val)
+              (error "Unknown register:"
+                     name))))
         (define (execute)
           (let ((insts (get-contents pc)))
             (if (null? insts)
-                'done
-                (begin
-                  ((instruction-execution-proc
-                    (car insts)))
-                  (execute)))))
+              'done
+              (begin
+                ((instruction-execution-proc
+                   (car insts)))
+                (execute)))))
         (define (dispatch message)
           (cond ((eq? message 'start)
                  (set-contents!
-                  pc
-                  the-instruction-sequence)
+                   pc
+                   the-instruction-sequence)
                  (execute))
+                ((eq? message 'pause)
+                 (lambda ()
+                   (let ((pc-contents (get-contents pc)))
+                     (set-contents! pc '())
+                     (set! pause pc-contents)
+                     (set! just-breaked true)
+                     pc-contents)))
+                ((eq? message 'try-to-break!)
+                 (lambda ()
+                   false))
+                ((eq? message 'proceed)
+                 (lambda ()
+                   (set-contents! pc pause)
+                   (set! pause '())
+                   (execute)))
+                ((eq? message 'breakpoints)
+                 (lambda () breakpoints))
+                ((eq? message 'set-breakpoint)
+                 ;; lookup-label
+                 (lambda (label n)
+                   (if (assoc '(label n) breakpoints)
+                     (display "There's already a breakpoint there")
+                     (set! breakpoints (cons '((label n)) breakpoints)))))
+                ((eq? message 'cancel-breakpoint)
+                 (lambda (cancel-breakpoint label n)
+                   (set! breakpoints (del-assoc '(label n) breakpoints))))
+                ((eq? message 'cancel-all-breakpoints)
+                 (lambda ()
+                   (set! breakpoints '())))
                 ((eq?
-                  message
-                  'install-instruction-sequence)
+                   message
+                   'install-instruction-sequence)
                  (lambda (seq)
+                   (display "@@@@") (newline)
+                   (display seq) (newline)
                    (set!
-                    the-instruction-sequence
-                    seq)))
+                     the-instruction-sequence
+                     seq)))
                 ((eq? message
                       'allocate-register)
                  allocate-register)
@@ -77,7 +111,7 @@
                       'install-operations)
                  (lambda (ops)
                    (set! the-ops
-                         (append the-ops ops))))
+                     (append the-ops ops))))
                 ((eq? message 'dict) dict)
                 ((eq? message 'add-instruction)
                  (lambda (inst)
@@ -146,9 +180,9 @@
                 ((eq? message 'operations)
                  the-ops)
                 (else (error "Unknown request:
-                              MACHINE"
+                             MACHINE"
                              message))))
-        dispatch))))
+      dispatch))))
 
 (define (add-instruction! machine reg)
   ((machine 'add-instruction) reg))
@@ -180,3 +214,23 @@
    (get-register machine register-name)
    value)
   'done)
+
+(define (set-breakpoint machine label n)
+  ((machine 'set-breakpoint) label n))
+
+(define (cancel-breakpoint machine label n)
+  ((machine 'cancel-breakpoint) label n))
+
+(define (cancel-all-breakpoints machine)
+  ((machine 'cancel-all-breakpoints)))
+
+(define (proceed-machine machine)
+  ((machine 'proceed)))
+
+;; label1 0
+;;   inst 1
+;;   inst 2
+;; label2 2
+;;   inst 3
+;;   inst 4
+;; label2, 2
